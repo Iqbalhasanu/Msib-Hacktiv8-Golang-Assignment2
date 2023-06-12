@@ -32,5 +32,5 @@ func StartApp() {
 		orderRoute.PUT("/:id", orderHandler.UpdateOrder)
 	}
 
-	r.Run("127.0.0.1:3030")
+	r.Run("127.0.0.1:8080")
 }
