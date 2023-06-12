@@ -1,9 +1,11 @@
 package service
 
 import (
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/entity"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/pkg/errs"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/repository/item_repository"
+	"fmt"
+
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/entity"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/pkg/errs"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/repository/item_repository"
 )
 
 type itemService struct {
@@ -11,7 +13,7 @@ type itemService struct {
 }
 
 type ItemService interface {
-	FindItemsByItemCodes(itemCodes []string) ([]*entity.Item, errs.MessageErr)
+	FindItemsByItemCode([]string, int) ([]*entity.Items, errs.MessageErr)
 }
 
 func NewItemService(itemRepo item_repository.ItemRepository) ItemService {
@@ -20,9 +22,8 @@ func NewItemService(itemRepo item_repository.ItemRepository) ItemService {
 	}
 }
 
-func (i *itemService) FindItemsByItemCodes(itemCodes []string) ([]*entity.Item, errs.MessageErr) {
-	items, err := i.itemRepo.FindItemsByItemCodes(itemCodes)
-
+func (i *itemService) FindItemsByItemCode(itemCodes []string, orderId int) ([]*entity.Items, errs.MessageErr) {
+	items, err := i.itemRepo.FindItemsByItemCode(itemCodes, orderId)
 	if err != nil {
 		return nil, err
 	}
@@ -33,14 +34,13 @@ func (i *itemService) FindItemsByItemCodes(itemCodes []string) ([]*entity.Item, 
 		for _, eachItem := range items {
 			if eachItemCode == eachItem.ItemCode {
 				isFound = true
-				break
 			}
 		}
 
 		if !isFound {
-			return nil, errs.NewNotFoundError("notfound")
+			return nil, errs.NotFound(fmt.Sprintf("item with code %s doesn't exists", eachItemCode))
 		}
 	}
 
-	return items, err
+	return items, nil
 }

@@ -4,75 +4,69 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/entity"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/pkg/errs"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/repository/item_repository"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/entity"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/pkg/errs"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/item_repository"
 )
 
-type itemPG struct {
+type itemPg struct {
 	db *sql.DB
 }
 
-func NewItemPG(db *sql.DB) item_repository.ItemRepository {
-	return &itemPG{
+func NewItemPg(db *sql.DB) item_repository.ItemRepository {
+	return &itemPg{
 		db: db,
 	}
 }
 
-func (i *itemPG) generatePlaceHolders(dataAmount int) string {
-	start := "("
+func (i *itemPg) generateQuery(length int) string {
+	query := "("
 
-	for i := 1; i <= dataAmount; i++ {
-		if i < dataAmount {
-			start += fmt.Sprintf("$%d,", i)
+	for i := 1; i <= length; i++ {
+		if i == length {
+			query += fmt.Sprintf("$%d)", i+1)
+			continue
 		}
-
-		if i == dataAmount {
-			start += fmt.Sprintf("$%d)", i)
-		}
+		query += fmt.Sprintf("$%d,", i+1)
 	}
 
-	return start
+	return query
 }
 
-func (i *itemPG) findItemByItemCodesQuery(dataAmount int) string {
+func (i *itemPg) findItemsByItemCodeQuery(length int, orderId int) string {
 	query := `
-		SELECT item_id, item_code, quantity, description, order_id, created_at, updated_at from "items"
-		WHERE item_code IN 
+	SELECT item_id, item_code, quantity, description, order_id, created_at, updated_at
+	FROM "items"
+	WHERE order_id=$1 AND item_code IN 
 	`
-	placeHolders := i.generatePlaceHolders(dataAmount)
 
-	result := query + placeHolders
+	param := i.generateQuery(length)
 
-	return result
+	return query + param
 }
 
-func (i *itemPG) FindItemsByItemCodes(itemCodes []string) ([]*entity.Item, errs.MessageErr) {
-	query := i.findItemByItemCodesQuery(len(itemCodes))
-	//SELECT * from "items" WHERE item_code IN ($1, $2)
+func (i *itemPg) FindItemsByItemCode(itemCodes []string, orderId int) ([]*entity.Items, errs.MessageErr) {
+	query := i.findItemsByItemCodeQuery(len(itemCodes), orderId)
 
-	args := []any{}
-
+	args := []any{orderId}
 	for _, value := range itemCodes {
 		args = append(args, value)
 	}
 
 	rows, err := i.db.Query(query, args...)
-
 	if err != nil {
-		return nil, errs.NewInternalServerError("Internal Server Error")
+		return nil, errs.InternalServerError("something went wrong")
 	}
 
 	defer rows.Close()
 
-	items := []*entity.Item{}
+	items := []*entity.Items{}
 	for rows.Next() {
-		item := entity.Item{}
+		item := entity.Items{}
 
-		err = rows.Scan(&item.ItemId, &item.ItemCode, &item.Quantity, &item.Description, &item.OrderId, &item.CreatedAt, &item.UpdatedAt)
-
+		err := rows.Scan(&item.ItemId, &item.ItemCode, &item.Quantity, &item.Description, &item.OrderId, &item.CreatedAt, &item.UpdatedAt)
 		if err != nil {
-			return nil, errs.NewInternalServerError("Internal Server Error")
+			return nil, errs.InternalServerError("something went wrong")
 		}
 
 		items = append(items, &item)

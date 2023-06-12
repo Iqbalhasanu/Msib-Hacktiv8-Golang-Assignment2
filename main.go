@@ -1,8 +1,7 @@
 package main
 
-import "github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/handler"
+import _ "github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/handler"
 
 func main() {
-	handler.StartApp()
-}
 
+}

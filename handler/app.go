@@ -1,36 +1,40 @@
 package handler
 
 import (
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/database"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/repository/item_repository/item_pg"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/repository/order_repository/order_pg"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2/service"
-
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/database"
+	_ "github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/docs"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/repository/item_repository/item_pg"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/repository/order_repository/order_pg"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/service"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func StartApp() {
-	r := gin.Default()
-
-	database.InitiliazeDatabase()
-
+func init() {
+	database.Initialize()
 	db := database.GetDatabaseInstance()
 
-	itemRepo := item_pg.NewItemPG(db)
-	orderRepo := order_pg.NewOrderPG(db)
-
+	itemRepo := item_pg.NewItemPg(db)
 	itemService := service.NewItemService(itemRepo)
+
+	orderRepo := order_pg.NewOrderPg(db)
 	orderService := service.NewOrderService(orderRepo, itemService)
 
 	orderHandler := NewOrderHandler(orderService)
 
-	orderRoute := r.Group("/orders")
+	route := gin.Default()
+
+	route.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	orderRoute := route.Group("/orders")
 	{
-		orderRoute.GET("/", orderHandler.GetAllOrder)
 		orderRoute.POST("/", orderHandler.CreateOrder)
-		orderRoute.DELETE("/:id", orderHandler.DeleteOrder)
-		orderRoute.PUT("/:id", orderHandler.UpdateOrder)
+		orderRoute.GET("/", orderHandler.GetAllOrders)
+		orderRoute.GET("/:orderId", orderHandler.GetOrder)
+		orderRoute.PUT("/:orderId", orderHandler.UpdateOrder)
+		orderRoute.DELETE("/:orderId", orderHandler.DeleteOrder)
 	}
 
-	r.Run("127.0.0.1:8080")
+	route.Run(":8080")
 }
