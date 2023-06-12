@@ -6,7 +6,7 @@ import (
 
 	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/entity"
 	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/pkg/errs"
-	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/item_repository"
+	"github.com/Iqbalhasanu/Msib-Hacktiv8-Golang-Assignment2.git/repository/item_repository"
 )
 
 type itemPg struct {
