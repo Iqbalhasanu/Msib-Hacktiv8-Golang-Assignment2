@@ -1,0 +1,202 @@
+definitions:
+  dto.AllOrderResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/dto.OrderResponse'
+        type: array
+      message:
+        type: string
+    type: object
+  dto.DeleteOrderResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  dto.ItemResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      itemcode:
+        type: string
+      orderId:
+        type: integer
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  dto.NewItemRequest:
+    properties:
+      description:
+        type: string
+      itemCode:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - description
+    - itemCode
+    - quantity
+    type: object
+  dto.NewOrderRequest:
+    properties:
+      customerName:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.NewItemRequest'
+        type: array
+      orderedAt:
+        type: string
+    required:
+    - customerName
+    - items
+    - orderedAt
+    type: object
+  dto.NewOrderResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.OrderResponse'
+      message:
+        type: string
+    type: object
+  dto.OrderResponse:
+    properties:
+      createdAt:
+        type: string
+      customerName:
+        type: string
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemResponse'
+        type: array
+      orderedAt:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Get details of all orders
+      operationId: get-all-orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AllOrderResponse'
+      summary: Get All Orders
+      tags:
+      - order
+    post:
+      consumes:
+      - application/json
+      description: Create a new order
+      operationId: create-new-order
+      parameters:
+      - description: request body json
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.NewOrderResponse'
+      summary: Create Order
+      tags:
+      - order
+  /orders/{OrderId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an Order
+      operationId: delete-order
+      parameters:
+      - description: Id of the order
+        in: path
+        name: OrderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DeleteOrderResponse'
+      summary: Delete Order
+      tags:
+      - order
+    get:
+      consumes:
+      - application/json
+      description: Get details an order
+      operationId: get-order
+      parameters:
+      - description: Id of the order
+        in: path
+        name: OrderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NewOrderResponse'
+      summary: Get Details Order
+      tags:
+      - order
+    put:
+      consumes:
+      - application/json
+      description: Update an order
+      operationId: update-order
+      parameters:
+      - description: Id of the order
+        in: path
+        name: OrderId
+        required: true
+        type: integer
+      - description: request body json
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NewOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NewOrderResponse'
+      summary: Update Order
+      tags:
+      - order
+swagger: "2.0"
